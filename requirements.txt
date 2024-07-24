@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+httpx
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+python-dotenv
+colorama
