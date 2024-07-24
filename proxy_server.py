@@ -186,7 +186,7 @@ async def handle_stream_request(url: str, data: Dict[Any, Any], headers: Dict[st
         async def stream_with_first_chunk():
             yield first_chunk.encode('utf-8')
             async for chunk in generator:
-                yield chunk.encode('utf-8')
+                yield chunk
 
         return StreamingResponse(stream_with_first_chunk(), media_type='text/event-stream', headers={'X-Accel-Buffering': 'no'})
     
