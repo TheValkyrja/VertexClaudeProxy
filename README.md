@@ -16,7 +16,7 @@
 支持Claude 3.5 sonnet, Claude 3 Opus/Sonnet/Haiku on Vertex AI
 
 ## 这个项目是做什么的？
-这个项目在本地架设Fastapi服务器，将发送至此服务器的标准Anthropic请求处理模型名后使用标准HTTP请求将请求转发至Vertex AI Claude。目前仅支持
+这个项目在本地架设Fastapi服务器，将发送至此服务器的标准Anthropic请求处理模型名后使用标准HTTP请求将请求转发至Vertex AI Claude。
 
 ### Usage
 #### 准备工作：
