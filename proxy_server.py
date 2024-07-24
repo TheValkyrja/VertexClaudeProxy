@@ -161,9 +161,9 @@ async def stream_generator(url: str, data: Dict[Any, Any], headers: Dict[str, st
             if response.status_code != 200:
                 error_content = await response.aread()
                 try:
-                    error_json= json.loads(error_content)
-                    error_status = error.get('status') or error.get('type') or 'UNKNOWN_ERROR'
-                    error_message = error_json[0]['error'].get('message', 'Unknown error occurred')
+                    error_json = json.loads(error_content)
+                    error_status = error_json.get('status') or error_json.get('type') or 'UNKNOWN_ERROR'
+                    error_message = error_json.get('error', {}).get('message', 'Unknown error occurred')
                 except (json.JSONDecodeError, KeyError, IndexError):
                     error_status = 'UNKNOWN_ERROR'
                     error_message = error_content.decode('utf-8')
@@ -172,22 +172,21 @@ async def stream_generator(url: str, data: Dict[Any, Any], headers: Dict[str, st
             async for chunk in response.aiter_text():
                 debug_mode and print(chunk, end='', flush=True)  #用于调试
                 if chunk.strip().startswith("event: error\ndata:"):
-                    error_data =chunk.split("data:", 1)[1].strip()
+                    error_data = chunk.split("data:", 1)[1].strip()
                     error_json = json.loads(error_data)
                     raise HTTPException(status_code=529, detail=error_json)
-                yield chunk.encode('utf-8')
+                yield chunk
 
 async def handle_stream_request(url: str, data: Dict[Any, Any], headers: Dict[str, str]):
     try:
-        # 尝试获取第一个数据块，这会触发任何初始异常
         generator = stream_generator(url, data, headers)
+        # 尝试获取第一个数据块，这会触发任何初始异常
         first_chunk = await generator.__anext__()
         
-        # 如果成功获取第一个数据块，创建一个新的生成器来yield所有数据
         async def stream_with_first_chunk():
-            yield first_chunk
+            yield first_chunk.encode('utf-8')
             async for chunk in generator:
-                yield chunk
+                yield chunk.encode('utf-8')
 
         return StreamingResponse(stream_with_first_chunk(), media_type='text/event-stream', headers={'X-Accel-Buffering': 'no'})
     
@@ -197,6 +196,10 @@ async def handle_stream_request(url: str, data: Dict[Any, Any], headers: Dict[st
     except Exception as e:
         print(f"发生未知错误：{str(e)}")
         return JSONResponse(status_code=500, content=error_detail("internal_error", str(e)))
+    finally:
+        # 确保生成器被正确关闭，但只有在它被创建的情况下
+        if 'generator' in locals():
+            await generator.aclose()
 
 async def handle_non_stream_request(url: str, data: Dict[Any, Any], headers: Dict[str, str]) -> JSONResponse:
     async with httpx.AsyncClient() as client:
