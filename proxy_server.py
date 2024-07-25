@@ -161,7 +161,7 @@ async def stream_generator(url: str, data: Dict[Any, Any], headers: Dict[str, st
             if response.status_code != 200:
                 error_content = await response.aread()
                 try:
-                    error_json= json.loads(error_content)
+                    error_json = json.loads(error_content)
                     error_status = error_json[0]['error'].get('status') or error_json[0]['error'].get('type') or 'UNKNOWN_ERROR'
                     error_message = error_json[0]['error'].get('message', 'Unknown error occurred')
                 except (json.JSONDecodeError, KeyError, IndexError):
@@ -172,7 +172,7 @@ async def stream_generator(url: str, data: Dict[Any, Any], headers: Dict[str, st
             async for chunk in response.aiter_text():
                 debug_mode and print(chunk, end='', flush=True)  #用于调试
                 if chunk.strip().startswith("event: error\ndata:"):
-                    error_data =chunk.split("data:", 1)[1].strip()
+                    error_data = chunk.split("data:", 1)[1].strip()
                     error_json = json.loads(error_data)
                     raise HTTPException(status_code=529, detail=error_json)
                 yield chunk
