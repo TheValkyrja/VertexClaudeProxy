@@ -164,7 +164,7 @@ async def handle_stream_request(url: str, data: Dict[Any, Any], headers: Dict[st
     
     try:
         # 创建流式传输迭代器，并调用客户端发出请求
-        req = client.build_request("POST", url, json=data, headers=headers, timeout=30)
+        req = client.build_request("POST", url, json=data, headers=headers, timeout=120)
         response = await client.send(req, stream=True)
         
         # 如果状态码不是200，抛出Exception
