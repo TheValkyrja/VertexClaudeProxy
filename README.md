@@ -6,7 +6,7 @@
 
 *新功能：报错处理、多账号负载均衡
 
-可在project_id中填入多个project_id，使用","进行分隔。
+可在project_id中填入多个project_id，使用带一个空格的","进行分隔。
 当auth.json存在时，应用将自动使用列表中第一个project_id，使用auth.json进行验证。
 
 若要启用多账号模式，将每个服务账号的json文件重命名为对应project_id.json放置于auth文件夹内，即启用多账号模式，应用会随机使用列表中的project_id对应的json文件进行验证和访问。（注意此模式下不要让auth文件夹内存在auth.json文件，不然默认只使用第一个project.）
